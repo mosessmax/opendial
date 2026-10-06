@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from opendial.audio.frames import FRAME_MS, AudioFrame, silence, to_frames
-from opendial.audio.vad import EnergyVad, VadEvent
+from opendial.audio.vad import EnergyVad, Segmenter, VadEvent
 from opendial.providers import STT, TTS, FakeSTT, FakeTTS
 from opendial.transports import AgentHangup, AgentHeard, Event, ToolCall
 
@@ -44,9 +44,7 @@ class LoopbackTransport:
         self.greet = greet
         self.latency_ms, self.stop_ms = latency_ms, stop_ms
         self.stt, self.tts = stt or FakeSTT(), tts or FakeTTS()
-        self.vad = EnergyVad(end_ms=endpoint_ms)
-        self.preroll: deque[AudioFrame] = deque(maxlen=10)  # 200 ms before VAD fires
-        self.heard: list[AudioFrame] = []
+        self.ears = Segmenter(EnergyVad(end_ms=endpoint_ms))
         self.outbox: deque[AudioFrame] = deque()
         self.events: list[Event] = []
         self.stop_after: int | None = None
@@ -57,18 +55,11 @@ class LoopbackTransport:
             await self._respond("")
 
     async def exchange(self, frame: AudioFrame) -> AudioFrame:
-        event = self.vad.feed(frame)
-        if event is VadEvent.SPEECH_START:
-            self.heard = list(self.preroll)
-        if self.vad.speaking or event is VadEvent.SPEECH_END:
-            self.heard.append(frame)
-        else:
-            self.preroll.append(frame)
+        event, utterance = self.ears.feed(frame)
         if event is VadEvent.SPEECH_START and self.outbox and self.stop_after is None:
             self.stop_after = self.stop_ms // FRAME_MS  # barge-in: stop talking soon
-        if event is VadEvent.SPEECH_END:
-            text = await self.stt.transcribe(self.heard)
-            self.heard = []
+        if utterance:
+            text = await self.stt.transcribe(utterance)
             self.events.append(AgentHeard(text))
             await self._respond(text)
 

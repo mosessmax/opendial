@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from opendial.audio import EnergyVad, VadEvent, dtmf_tones, silence, to_frames
+from opendial.audio import EnergyVad, Segmenter, VadEvent, dtmf_tones, silence, to_frames
 from opendial.audio.dtmf import FREQS
 from opendial.audio.frames import SAMPLE_RATE
 
@@ -46,3 +46,16 @@ def test_dtmf_frequencies(key):
 def test_dtmf_rejects_bad_key():
     with pytest.raises(ValueError):
         dtmf_tones("1x")
+
+
+def test_segmenter_returns_whole_utterance_with_preroll():
+    seg = Segmenter(EnergyVad(end_ms=200))
+    speech = to_frames(tone(300), text="hello")
+    utterances = [
+        u
+        for f in to_frames(silence(100)) + speech + to_frames(silence(300))
+        if (u := seg.feed(f)[1])
+    ]
+    assert len(utterances) == 1
+    assert [f.text for f in utterances[0] if f.text] == ["hello"]
+    assert len(utterances[0]) >= len(speech)

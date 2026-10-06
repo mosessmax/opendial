@@ -6,7 +6,8 @@ enough. A model-based VAD can replace it by implementing `feed`.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections import deque
+from dataclasses import dataclass, field
 from enum import Enum
 
 from opendial.audio.frames import AudioFrame, rms_dbfs
@@ -44,3 +45,35 @@ class EnergyVad:
                 self.speaking, self._voiced = False, 0.0
                 return VadEvent.SPEECH_END
         return None
+
+
+@dataclass
+class Segmenter:
+    """Cuts a frame stream into utterances, keeping a little audio from before the VAD fired."""
+
+    vad: EnergyVad = field(default_factory=EnergyVad)
+    preroll_frames: int = 10
+    _preroll: deque[AudioFrame] = field(init=False)
+    _current: list[AudioFrame] = field(default_factory=list, init=False)
+
+    def __post_init__(self) -> None:
+        self._preroll = deque(maxlen=self.preroll_frames)
+
+    @property
+    def speaking(self) -> bool:
+        return self.vad.speaking
+
+    def feed(self, frame: AudioFrame) -> tuple[VadEvent | None, list[AudioFrame]]:
+        """Returns the VAD event, plus the whole utterance when one just ended."""
+        event = self.vad.feed(frame)
+        if event is VadEvent.SPEECH_START:
+            self._current = [*self._preroll, frame]
+        elif self.vad.speaking or event is VadEvent.SPEECH_END:
+            self._current.append(frame)
+        else:
+            self._preroll.append(frame)
+        if event is VadEvent.SPEECH_END:
+            done, self._current = self._current, []
+            self._preroll.clear()
+            return event, done
+        return event, []
