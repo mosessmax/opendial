@@ -37,6 +37,7 @@ def test_full_scripted_call():
         latency_ms=400,
     )
     assert rec.ended_by == "agent"
+    assert rec.caller_finished
     speakers = [t.speaker[0] for t in rec.turns]
     assert "".join(speakers) == "acaacaca"
     assert rec.turns[0].text.startswith("Welcome")
@@ -51,6 +52,12 @@ def test_full_scripted_call():
 def test_caller_hangs_up():
     rec = call({"script": ["Never mind"]})
     assert rec.ended_by == "caller"
+
+
+def test_agent_hanging_up_early_is_recorded():
+    rec = call({"script": ["bye now", "wait, one more thing"]})
+    assert rec.ended_by == "agent"
+    assert not rec.caller_finished
 
 
 def test_timeout_when_agent_is_silent():

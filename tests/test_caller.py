@@ -38,6 +38,7 @@ def test_llm_caller_keeps_history():
 def test_end_marker_says_goodbye_then_hangs_up():
     caller = make(ScriptedLLM([f"Thanks, bye. {END}"]))
     assert run(caller.reply("Done!")) == "Thanks, bye."
+    assert caller.finished
     assert run(caller.reply("Anything else?")) is None
 
 
@@ -48,7 +49,9 @@ def test_bare_end_hangs_up_now():
 def test_script_mode_ignores_llm():
     llm = ScriptedLLM(["should not be used"])
     caller = make(llm, script=["one", "two"])
-    assert [run(caller.reply("x")) for _ in range(3)] == ["one", "two", None]
+    assert run(caller.reply("x")) == "one" and not caller.finished
+    assert run(caller.reply("x")) == "two" and caller.finished
+    assert run(caller.reply("x")) is None
     assert llm.calls == []
 
 

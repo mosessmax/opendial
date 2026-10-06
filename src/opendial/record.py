@@ -45,6 +45,8 @@ class CallRecord:
     """Call connected -> agent's first speech."""
     barge_ins: list[BargeIn] = field(default_factory=list)
     ended_by: EndReason = "caller"
+    caller_finished: bool = False
+    """Whether the caller had said everything it meant to when the call ended."""
     duration_ms: float = 0.0
     caller_audio: PCM = field(default_factory=lambda: np.zeros(0, dtype=np.int16))
     agent_audio: PCM = field(default_factory=lambda: np.zeros(0, dtype=np.int16))

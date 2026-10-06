@@ -46,6 +46,7 @@ class _Call:
             self.rec.ended_by = await self.loop()
         finally:
             await self.transport.close()
+        self.rec.caller_finished = self.caller.finished
         self.rec.turns.sort(key=lambda t: t.start_ms)
         self.rec.duration_ms = self.now
         self.rec.caller_audio = np.concatenate(self.caller_audio or [silence(0)])

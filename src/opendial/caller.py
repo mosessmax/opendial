@@ -51,7 +51,7 @@ class Caller:
         self.scenario = scenario
         self.llm, self.tts, self.stt = llm, tts, stt
         self.line = build_chain(packs.resolve_audio(scenario.audio), seed)
-        self._script = iter(scenario.script) if scenario.script is not None else None
+        self._script = list(scenario.script) if scenario.script is not None else None
         self._done = False
         self.history: list[Message] = [{"role": "system", "content": system_prompt(scenario)}]
 
@@ -62,7 +62,8 @@ class Caller:
         if agent_said:
             self.history.append({"role": "user", "content": agent_said})
         if self._script is not None:
-            text = next(self._script, None)
+            text = self._script.pop(0) if self._script else None
+            self._done = not self._script
         else:
             raw = await self.llm.complete(self.history)
             self._done = END in raw  # say the goodbye, hang up on the next turn
@@ -72,6 +73,11 @@ class Caller:
             return None
         self.history.append({"role": "assistant", "content": text})
         return text
+
+    @property
+    def finished(self) -> bool:
+        """True once the caller has said everything it meant to say."""
+        return self._done
 
     async def speak(self, text: str) -> list[AudioFrame]:
         """Synthesize `text` and send it through the impaired line."""
