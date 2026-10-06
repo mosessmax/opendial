@@ -1,0 +1,19 @@
+kind: accent
+id: ng-yoruba-english
+name: Yoruba-English code-switching
+description: Caller speaks Nigerian English and drops into Yoruba words and tags mid-sentence.
+tts_locale: en-NG
+style: |
+  Speak Nigerian English with Yoruba code-switching, as is common in
+  south-west Nigeria. Mix Yoruba discourse markers and short phrases
+  ("abi", "sha", "e jo", "ehn", "o ti pe") into English sentences. Keep the
+  task-critical words (dates, amounts, names) in English. Do not caricature.
+examples:
+  - So it will come tomorrow abi?
+  - E jo, check it again for me.
+  - Ehn, I have been waiting since morning sha.
+  - O ti pe, I need it today.
+normalize:
+  abii: abi
+  shaa: sha
+  ejo: e jo

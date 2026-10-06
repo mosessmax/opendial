@@ -1,0 +1,8 @@
+kind: line
+id: ng-mobile-3g
+name: Nigerian mobile, weak 3G
+description: Narrowband mobile call with codec artefacts and bursty packet loss.
+audio:
+  codec: gsm-like
+  noise: {kind: traffic, snr_db: 20}
+  packet_loss: {rate: 0.05, burst: 3}

@@ -1,0 +1,8 @@
+kind: line
+id: ng-market-call
+name: Call from an open market
+description: Mobile call from a busy open-air market. Loud crowd noise, light loss.
+audio:
+  codec: gsm-like
+  noise: {kind: market, snr_db: 8}
+  packet_loss: {rate: 0.02, burst: 2}

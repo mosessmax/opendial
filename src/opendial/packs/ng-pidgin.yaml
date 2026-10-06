@@ -1,0 +1,19 @@
+kind: accent
+id: ng-pidgin
+name: Nigerian Pidgin
+description: Caller speaks Nigerian Pidgin, switching to plain English for numbers and names.
+tts_locale: en-NG
+style: |
+  Speak Nigerian Pidgin English the way people talk on the phone in Lagos.
+  Use common Pidgin forms ("I wan", "e don", "wetin", "abeg", "na", "dey")
+  naturally, not in every sentence. Keep numbers, names and addresses clear.
+  If the agent does not understand, rephrase in plainer English once, then
+  go back to Pidgin. Do not exaggerate or caricature.
+examples:
+  - Abeg, I wan know where my package dey.
+  - E don pass one week wey I order am.
+  - Wetin be the next step?
+  - Na Saturday go better for me.
+normalize:
+  a beg: abeg
+  abegi: abeg

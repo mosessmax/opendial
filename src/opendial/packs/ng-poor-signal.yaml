@@ -1,0 +1,8 @@
+kind: line
+id: ng-poor-signal
+name: Poor signal
+description: Edge-of-coverage call. Heavy, long loss bursts that drop whole words.
+audio:
+  codec: gsm-like
+  noise: {kind: pink, snr_db: 15}
+  packet_loss: {rate: 0.15, burst: 8}
