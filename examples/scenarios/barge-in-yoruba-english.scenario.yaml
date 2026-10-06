@@ -1,0 +1,20 @@
+description: Caller cuts the greeting short, code-switching between English and Yoruba.
+tags: [ng]
+persona:
+  name: Bisi
+  accent: ng-yoruba-english
+  traits: [impatient]
+goal: Get her parcel delivered on Friday.
+script:
+  - E jo, it's about my parcel delivery abi.
+  - Friday please.
+  - Okay, thank you.
+interruptions:
+  - {turn: 0, after_ms: 1200, say: "Ehn, sorry, I'm in a hurry sha."}
+dtmf:
+  - {when: "order number", digits: "9020#"}
+audio:
+  line: ng-mobile-3g
+success:
+  - {type: interruption_handled, max_stop_ms: 800}
+  - {type: tool_called, name: reschedule, args: {day: friday}}

@@ -1,0 +1,23 @@
+description: Pidgin speaker reschedules a delivery from a noisy market.
+tags: [smoke, ng]
+persona:
+  name: Chidi
+  description: Trader who ordered stock for his shop.
+  accent: ng-pidgin
+goal: Move his delivery to Saturday.
+context:
+  order_id: "4417"
+script:
+  - Abeg, I wan change my delivery day.
+  - Make e be Saturday.
+  - Thank you, bye.
+dtmf:
+  - {when: "order number", digits: "4417#"}
+audio:
+  line: ng-market-call
+success:
+  - {type: tool_called, name: lookup_order, args: {order_id: "4417"}}
+  - {type: tool_called, name: reschedule, args: {day: saturday}}
+  - {type: time_to_first_speech, max_ms: 1500}
+  - {type: transcription_accuracy, max_wer: 0.2}
+  - {type: no_agent_hangup}
