@@ -22,6 +22,9 @@ dependencies = [
 [project.scripts]
 opendial = "opendial.cli:main"
 
+[project.entry-points.pytest11]
+opendial = "opendial.pytest_plugin"
+
 [project.urls]
 Repository = "https://github.com/mosessmax/opendial"
 
@@ -34,6 +37,9 @@ packages = ["src/opendial"]
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 100
